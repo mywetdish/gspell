@@ -26,7 +26,6 @@ namespace Renderer {
 
     	GLint success;
     	glGetProgramiv(m_ID, GL_LINK_STATUS, &success);
-    	printf("%d\n", success);
     	if (!success)
     	{
     		GLchar infoLog[1024];

@@ -84,13 +84,11 @@ int main(int argc, char** argv)
             return -1;
         }
 
-        auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTexture", "SpriteShader", 50, 100);
-        pSprite->setPosition(glm::vec2(300,100));
+        std::vector<std::string> subTextureNames = {"Asphalt", "Grass", "AsHole", "FlGrass", "FlDirt"};
+        auto pTextureAtlas = resourceManager.loadTextureAtlas("DefaultTextureAtlas", "res/textures/myOverworld.png", std::move(subTextureNames),16,16);
 
-        glm::mat4 modelMatrix_1 = glm::mat4(1.f);
-        modelMatrix_1 = glm::translate(modelMatrix_1, glm::vec3(100.f, 50.f, 0.f));
-        glm::mat4 modelMatrix_2 = glm::mat4(1.f);
-        modelMatrix_2 = glm::translate(modelMatrix_2, glm::vec3(590.f, 50.f, 0.f));
+        auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "FlDirt");
+        pSprite->setPosition(glm::vec2(40,40));
 
         glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(g_windowSize.x), 0.f, static_cast<float>(g_windowSize.y), -100.f, 100.f);
         
