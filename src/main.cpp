@@ -1,16 +1,15 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/vec2.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
-#include "renderer/shader_program.h"
-#include "renderer/texture2d.h"
-#include "renderer/sprite.h"
+#include <chrono>
+
+#include "game/game.h"
 #include "resources/resource_manager.h"
 
 glm::ivec2 g_windowSize(640,480);
+Game g_game(g_windowSize);
 
 void glfwWindowSizeCallback(GLFWwindow* pWindow, int width, int height)
 {
@@ -25,6 +24,8 @@ void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int
     {
         glfwSetWindowShouldClose(pWindow, GL_TRUE);
     }
+
+    g_game.setKey(key, action);
 }
 
 int main(int argc, char** argv)
@@ -65,46 +66,28 @@ int main(int argc, char** argv)
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-    glClearColor(1, 1, 0, 1);
 
     {
-        ResourceManager resourceManager(argv[0]);
+        ResourceManager::setExecutablePath(argv[0]);
 
-        auto pSpriteShaderProgram = resourceManager.loadShaders("SpriteShader", "res/shaders/vSprite.txt", "res/shaders/fSprite.txt");
-        if (!pSpriteShaderProgram)
-        {
-            std::cerr << "Can't create shader program: " << "SpriteShader" << std::endl;
+        if(!g_game.init()){
             return -1;
         }
 
-        auto tex = resourceManager.loadTexture("DefaultTexture", "res/textures/myOverworld.png");
-        if (!tex)
-        {
-            std::cerr << "Can't load texture: " << "DefaultTexture" << std::endl;
-            return -1;
-        }
-
-        std::vector<std::string> subTextureNames = {"Asphalt", "Grass", "AsHole", "FlGrass", "FlDirt"};
-        auto pTextureAtlas = resourceManager.loadTextureAtlas("DefaultTextureAtlas", "res/textures/myOverworld.png", std::move(subTextureNames),16,16);
-
-        auto pSprite = resourceManager.loadSprite("NewSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "FlDirt");
-        pSprite->setPosition(glm::vec2(40,40));
-
-        glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(g_windowSize.x), 0.f, static_cast<float>(g_windowSize.y), -100.f, 100.f);
-        
-        pSpriteShaderProgram->use();
-        pSpriteShaderProgram->setInt("tex", 0);
-        pSpriteShaderProgram->setMatrix4("projectionMat",projectionMatrix);
+        auto lastTime = std::chrono::high_resolution_clock::now();
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(pWindow))
         {
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            uint64_t duration = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - lastTime).count( );
+            lastTime = currentTime;
+            g_game.update(duration);
+
             /* Render here */
             glClear(GL_COLOR_BUFFER_BIT);
 
-            tex->bind();
-
-            pSprite->render();
+            g_game.render();
 
             /* Swap front and back buffers */
             glfwSwapBuffers(pWindow);
@@ -112,6 +95,8 @@ int main(int argc, char** argv)
             /* Poll for and process events */
             glfwPollEvents();
         }
+
+        ResourceManager::unloadAllResources();
     }
 
     glfwTerminate();

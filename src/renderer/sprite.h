@@ -25,12 +25,12 @@ namespace Renderer {
 		Sprite(const Sprite&) = delete;
 		Sprite& operator=(const Sprite&) = delete;
 
-		void render() const;
+		virtual void render() const;
 		void setPosition(const glm::vec2& position);
 		void setSize(const glm::vec2& size);
 		void setRotation(const float rotation);
 
-	private:
+	protected:
 		std::shared_ptr<Texture2D> m_pTexture;
 		std::shared_ptr<ShaderProgram> m_pShaderProgram;
 		glm::vec2 m_position;
@@ -39,5 +39,6 @@ namespace Renderer {
 		GLuint m_VAO;
 		GLuint m_vertexCoordsVBO;
 		GLuint m_textureCoordsVBO;
+        GLuint m_EBO;
 	};
 }

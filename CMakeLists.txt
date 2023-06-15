@@ -11,9 +11,15 @@ add_executable(${PROJECT_NAME}
 	src/renderer/texture2d.h
 	src/renderer/sprite.cpp
 	src/renderer/sprite.h
+	src/renderer/animated_sprite.cpp
+	src/renderer/animated_sprite.h
 	src/resources/resource_manager.cpp
 	src/resources/resource_manager.h
 	src/resources/stb_image.h
+	src/game/game.cpp
+	src/game/game.h
+    src/game/character.cpp
+    src/game/character.h
 )
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
